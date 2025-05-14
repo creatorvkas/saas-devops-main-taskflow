@@ -1,293 +1,306 @@
 "use client";
 
-import { useState } from "react";
-import { PageHeader } from "@/components/layout/page-header";
-import { useTaskStore, useFilteredTasks } from "@/lib/store";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell,
-  Legend,
-  PieChart,
-  Pie
-} from "recharts";
-import { format, subDays, isSameDay } from "date-fns";
 import { motion } from "framer-motion";
-import { TaskDialog } from "@/components/features/task/task-dialog";
-import { Plus, CheckCircle2, Clock, AlertCircle, PieChart as PieChartIcon } from "lucide-react";
+import { 
+  Zap, 
+  CheckCircle2, 
+  Clock, 
+  Target, 
+  Shield, 
+  Sparkles,
+  ArrowRight,
+  BarChart3,
+  Calendar,
+  Settings2
+} from "lucide-react";
 
-export default function Dashboard() {
-  const { tasks, tags } = useTaskStore();
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  
-  // Calculate task statistics
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => task.status === "completed").length;
-  const overdueTasks = tasks.filter(task => 
-    task.status !== "completed" && 
-    task.dueDate && 
-    new Date(task.dueDate) < new Date()
-  ).length;
-  const upcomingTasks = tasks.filter(task => 
-    task.status !== "completed" && 
-    task.dueDate && 
-    new Date(task.dueDate) > new Date() &&
-    new Date(task.dueDate) < new Date(new Date().setDate(new Date().getDate() + 7))
-  ).length;
-  
-  // Calculate completion rate
-  const completionRate = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  
-  // Generate data for the tasks created chart (last 7 days)
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = subDays(new Date(), i);
-    return {
-      date: format(date, "MMM dd"),
-      created: tasks.filter(task => isSameDay(new Date(task.createdAt), date)).length,
-      completed: tasks.filter(task => task.completedAt && isSameDay(new Date(task.completedAt), date)).length,
-    };
-  }).reverse();
-  
-  // Generate data for priority distribution
-  const priorityData = [
-    { name: "Low", value: tasks.filter(task => task.priority === "low").length },
-    { name: "Medium", value: tasks.filter(task => task.priority === "medium").length },
-    { name: "High", value: tasks.filter(task => task.priority === "high").length },
-    { name: "Urgent", value: tasks.filter(task => task.priority === "urgent").length },
-  ];
-  
-  // Generate data for tag distribution
-  const tagData = tags.map(tag => ({
-    name: tag.name,
-    value: tasks.filter(task => task.tags.includes(tag.id)).length,
-    color: tag.color,
-  }));
-  
-  // Top task categories
-  const topCategories = [...tagData].sort((a, b) => b.value - a.value).slice(0, 5);
-  
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-  
-  const MotionCard = motion(Card);
-  
+export default function LandingPage() {
   return (
-    <div>
-      <PageHeader 
-        title="Dashboard" 
-        description="Your task overview and statistics"
-        action={{
-          label: "New Task",
-          icon: <Plus className="h-4 w-4 mr-2" />,
-          onClick: () => setTaskDialogOpen(true),
-        }}
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MotionCard 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-            <PieChartIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalTasks}</div>
-            <p className="text-xs text-muted-foreground">
-              {completionRate}% completion rate
-            </p>
-          </CardContent>
-        </MotionCard>
-        
-        <MotionCard 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-        >
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedTasks}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0}% of total tasks
-            </p>
-          </CardContent>
-        </MotionCard>
-        
-        <MotionCard 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-        >
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-            <Clock className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingTasks}</div>
-            <p className="text-xs text-muted-foreground">
-              Due in the next 7 days
-            </p>
-          </CardContent>
-        </MotionCard>
-        
-        <MotionCard 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.4 }}
-        >
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-            <AlertCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overdueTasks}</div>
-            <p className="text-xs text-muted-foreground">
-              Tasks past their due date
-            </p>
-          </CardContent>
-        </MotionCard>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <MotionCard 
-          className="lg:col-span-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.5 }}
-        >
-          <CardHeader>
-            <CardTitle>Task Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={last7Days}
-                  margin={{
-                    top: 10,
-                    right: 30,
-                    left: 0,
-                    bottom: 0,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area
-                    type="monotone"
-                    dataKey="created"
-                    stackId="1"
-                    stroke="hsl(var(--chart-1))"
-                    fill="hsl(var(--chart-1))"
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+                Automate Your Tasks,{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Amplify Your Productivity
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+                TaskFlow helps you streamline your workflow with powerful automation tools, 
+                intuitive task management, and real-time analytics.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" asChild>
+                  <Link href="/tasks">
+                    Get Started
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline">
+                  Watch Demo
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4 md:px-6 lg:px-8 bg-muted/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Powerful Features</h2>
+            <p className="text-muted-foreground">Everything you need to manage tasks efficiently</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Zap className="h-6 w-6" />,
+                title: "Smart Automation",
+                description: "Create custom automation rules to handle repetitive tasks automatically."
+              },
+              {
+                icon: <BarChart3 className="h-6 w-6" />,
+                title: "Analytics Dashboard",
+                description: "Get insights into your productivity with detailed analytics and reports."
+              },
+              {
+                icon: <Calendar className="h-6 w-6" />,
+                title: "Task Management",
+                description: "Organize tasks with priorities, due dates, and custom tags."
+              },
+              {
+                icon: <Target className="h-6 w-6" />,
+                title: "Goal Tracking",
+                description: "Set and track goals with milestones and progress indicators."
+              },
+              {
+                icon: <Clock className="h-6 w-6" />,
+                title: "Time Management",
+                description: "Focus timer and time tracking for enhanced productivity."
+              },
+              {
+                icon: <Settings2 className="h-6 w-6" />,
+                title: "Customization",
+                description: "Customize workflows and views to match your needs."
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-card p-6 rounded-lg shadow-lg"
+              >
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold mb-6">Why Choose TaskFlow?</h2>
+              <div className="space-y-4">
+                {[
+                  "Increase productivity by up to 40%",
+                  "Reduce time spent on repetitive tasks",
+                  "Improve team collaboration",
+                  "Track progress in real-time",
+                  "Customize workflows to your needs"
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              <Button className="mt-8" size="lg">
+                Learn More
+              </Button>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="aspect-video rounded-xl overflow-hidden shadow-2xl">
+                <img 
+                  src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg"
+                  alt="TaskFlow Dashboard"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 px-4 md:px-6 lg:px-8 bg-muted/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Trusted by Teams Worldwide</h2>
+            <p className="text-muted-foreground">See what our customers have to say</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "TaskFlow has transformed how our team manages projects. The automation features are a game-changer.",
+                author: "Sarah Johnson",
+                role: "Product Manager at TechCorp",
+                image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg"
+              },
+              {
+                quote: "The analytics dashboard gives us invaluable insights into our team's productivity and workflow.",
+                author: "Michael Chen",
+                role: "CTO at StartupX",
+                image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg"
+              },
+              {
+                quote: "Simple yet powerful. TaskFlow has everything we need to stay organized and efficient.",
+                author: "Emily Rodriguez",
+                role: "Team Lead at DesignCo",
+                image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg"
+              }
+            ].map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-card p-6 rounded-lg shadow-lg"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.author}
+                    className="w-12 h-12 rounded-full object-cover"
                   />
-                  <Area
-                    type="monotone"
-                    dataKey="completed"
-                    stackId="2"
-                    stroke="hsl(var(--chart-2))"
-                    fill="hsl(var(--chart-2))"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+                  <div>
+                    <h4 className="font-semibold">{testimonial.author}</h4>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  </div>
+                </div>
+                <p className="italic">{testimonial.quote}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-primary rounded-2xl p-8 md:p-12 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+                Ready to Boost Your Productivity?
+              </h2>
+              <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
+                Join thousands of teams already using TaskFlow to streamline their workflow
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" variant="secondary" asChild>
+                  <Link href="/tasks">
+                    Get Started for Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                  Schedule a Demo
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 md:px-6 lg:px-8 border-t">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Features</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Pricing</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Integrations</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Enterprise</Link></li>
+              </ul>
             </div>
-          </CardContent>
-        </MotionCard>
-        
-        <MotionCard
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-        >
-          <CardHeader>
-            <CardTitle>Priority Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={priorityData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) => 
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {priorityData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">About</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Blog</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Careers</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
+              </ul>
             </div>
-          </CardContent>
-        </MotionCard>
-        
-        <MotionCard
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.7 }}
-        >
-          <CardHeader>
-            <CardTitle>Top Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={topCategories}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name"
-                    width={80}
-                  />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#8884d8">
-                    {topCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Documentation</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Help Center</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">API Reference</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Status</Link></li>
+              </ul>
             </div>
-          </CardContent>
-        </MotionCard>
-      </div>
-      
-      <TaskDialog 
-        open={taskDialogOpen} 
-        onOpenChange={setTaskDialogOpen} 
-      />
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Privacy</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Terms</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Security</Link></li>
+                <li><Link href="#" className="text-muted-foreground hover:text-foreground">Cookies</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-6 w-6 text-primary" />
+                <span className="font-bold text-xl">TaskFlow</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} TaskFlow. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
