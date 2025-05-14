@@ -18,12 +18,26 @@ import {
   FolderKanban,
   Target,
   Users,
-  Pencil
+  Pencil,
+  CreditCard,
+  Bell,
+  LogOut,
+  User,
+  Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -101,11 +115,9 @@ export const Sidebar: FC<SidebarProps> = ({ className }) => {
   const [clickSound, setClickSound] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Initialize audio elements
     setHoverSound(new Audio(''));
     setClickSound(new Audio('https://www.soundjay.com/buttons/sounds/button-32.mp3'));
 
-    // Cleanup function
     return () => {
       if (hoverSound) {
         hoverSound.pause();
@@ -202,22 +214,49 @@ export const Sidebar: FC<SidebarProps> = ({ className }) => {
               ))}
             </nav>
           </ScrollArea>
-          <div className="mt-auto">
-            <Separator />
-            <div className="p-4">
-              <motion.div
-                initial={false}
-                animate={{ opacity: collapsed ? 0 : 1 }}
-                transition={{ duration: 0.2 }}
-                className={cn(
-                  "text-xs text-muted-foreground transition-opacity",
-                  collapsed ? "hidden" : "block"
-                )}
-              >
-                <p>TaskFlow</p>
-                <p>Version 3.0.0</p>
-              </motion.div>
-            </div>
+          <div className="mt-auto p-4">
+            <Separator className="mb-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start gap-2">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg" />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  {!collapsed && (
+                    <div className="flex flex-col items-start text-sm">
+                      <span className="font-medium">Jane Doe</span>
+                      <span className="text-xs text-muted-foreground">jane@example.com</span>
+                    </div>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  Account
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Billing
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Bell className="mr-2 h-4 w-4" />
+                  Notifications
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-purple-600">
+                  <Crown className="mr-2 h-4 w-4" />
+                  Upgrade to Pro
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </motion.div>
