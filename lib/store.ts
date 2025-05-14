@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-import { Task, Priority, Status, Tag, Automation, Document, Project, Goal, Whiteboard } from './types';
+import { Task, Priority, Status, Tag, Automation, Document, Project, Goal } from './types';
 
 interface TaskState {
   tasks: Task[];
@@ -10,7 +10,6 @@ interface TaskState {
   documents: Document[];
   projects: Project[];
   goals: Goal[];
-  whiteboards: Whiteboard[];
   filter: {
     status: Status | 'all';
     priority: Priority | 'all';
@@ -54,11 +53,6 @@ interface TaskState {
   updateDocument: (id: string, updates: Partial<Omit<Document, 'id' | 'createdAt' | 'updatedAt'>>) => void;
   deleteDocument: (id: string) => void;
   
-  // Whiteboard actions
-  addWhiteboard: (whiteboard: Omit<Whiteboard, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateWhiteboard: (id: string, updates: Partial<Omit<Whiteboard, 'id' | 'createdAt' | 'updatedAt'>>) => void;
-  deleteWhiteboard: (id: string) => void;
-  
   // Filter actions
   setStatusFilter: (status: Status | 'all') => void;
   setPriorityFilter: (priority: Priority | 'all') => void;
@@ -83,7 +77,6 @@ export const useTaskStore = create<TaskState>()(
       documents: [],
       projects: [],
       goals: [],
-      whiteboards: [],
       filter: {
         status: 'all',
         priority: 'all',
@@ -502,36 +495,6 @@ export const useTaskStore = create<TaskState>()(
         }));
       },
       
-      // Whiteboard actions
-      addWhiteboard: (whiteboard) => {
-        const newWhiteboard: Whiteboard = {
-          id: uuidv4(),
-          ...whiteboard,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        
-        set((state) => ({
-          whiteboards: [...state.whiteboards, newWhiteboard]
-        }));
-      },
-      
-      updateWhiteboard: (id, updates) => {
-        set((state) => ({
-          whiteboards: state.whiteboards.map(whiteboard =>
-            whiteboard.id === id
-              ? { ...whiteboard, ...updates, updatedAt: new Date() }
-              : whiteboard
-          )
-        }));
-      },
-      
-      deleteWhiteboard: (id) => {
-        set((state) => ({
-          whiteboards: state.whiteboards.filter(whiteboard => whiteboard.id !== id)
-        }));
-      },
-      
       // Filter actions
       setStatusFilter: (status) => {
         set((state) => ({
@@ -583,6 +546,7 @@ export const useTaskStore = create<TaskState>()(
           .filter(automation => automation.active)
           .filter(automation => {
             if (automation.trigger.type !== trigger.type) return false;
+            
             
             switch (trigger.type) {
               case 'priority-changed':

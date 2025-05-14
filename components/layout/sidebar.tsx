@@ -17,8 +17,6 @@ import {
   ChevronLeft,
   FolderKanban,
   Target,
-  Users,
-  Pencil,
   CreditCard,
   Bell,
   LogOut,
@@ -67,11 +65,6 @@ const sidebarLinks = [
     icon: <CheckSquare className="h-5 w-5" />,
   },
   {
-    title: "Teams",
-    href: "/teams",
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
     title: "Upcoming",
     href: "/upcoming",
     icon: <Clock className="h-5 w-5" />,
@@ -85,11 +78,6 @@ const sidebarLinks = [
     title: "Docs",
     href: "/docs",
     icon: <FileText className="h-5 w-5" />,
-  },
-  {
-    title: "Whiteboards",
-    href: "/whiteboards",
-    icon: <Pencil className="h-5 w-5" />,
   },
   {
     title: "Tags",

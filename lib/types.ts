@@ -35,7 +35,6 @@ export type Project = {
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
-  teamMembers: string[];
   progress: number;
 };
 
@@ -92,17 +91,6 @@ export type Document = {
   content: string;
   tags: string[];
   projectId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type Whiteboard = {
-  id: string;
-  title: string;
-  description?: string;
-  content?: string;
-  tags: string[];
-  collaborators: string[];
   createdAt: Date;
   updatedAt: Date;
 };
