@@ -231,11 +231,7 @@ export const Sidebar: FC<SidebarProps> = ({ className }) => {
                   Billing
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Bell className="mr-2 h-4 w-4" />
-                  Notifications
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-purple-600">
-                  <Crown className="mr-2 h-4 w-4" />
+                  <Bell className="mr-2 h-4 w-4" />                
                   Upgrade to Pro
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
